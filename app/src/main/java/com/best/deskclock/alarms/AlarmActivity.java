@@ -304,6 +304,11 @@ public class AlarmActivity extends AppCompatActivity implements View.OnClickList
         mPulseAnimator.setInterpolator(PULSE_INTERPOLATOR);
         mPulseAnimator.setRepeatCount(ValueAnimator.INFINITE);
         mPulseAnimator.start();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setTurnScreenOn(true);
+            setShowWhenLocked(true);
+        }
     }
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
