@@ -10,19 +10,19 @@ import static android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTI
 import static android.provider.Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT;
 import static android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS;
 import static android.provider.Settings.EXTRA_APP_PACKAGE;
-
 import static com.best.deskclock.DeskClock.REQUEST_CHANGE_PERMISSIONS;
 
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -30,6 +30,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.best.deskclock.MiuiCheck;
 import com.best.deskclock.R;
 import com.best.deskclock.Utils;
 import com.best.deskclock.data.DataModel;
@@ -42,16 +43,18 @@ public class PermissionsManagementActivity extends CollapsingToolbarBaseActivity
     MaterialCardView mIgnoreBatteryOptimizationsView;
     MaterialCardView mNotificationView;
     MaterialCardView mFullScreenNotificationsView;
+    MaterialCardView mShowLockscreenView;
 
     ImageView mIgnoreBatteryOptimizationsDetails;
     ImageView mNotificationDetails;
     ImageView mFullScreenNotificationsDetails;
+    ImageView mShowLockscreenDetails;
 
     TextView mIgnoreBatteryOptimizationsStatus;
     TextView mNotificationStatus;
     TextView mFullScreenNotificationsStatus;
 
-    private static final String PERMISSION_POWER_OFF_ALARM = "org.codeaurora.permission.POWER_OFF_ALARM";
+    //private static final String PERMISSION_POWER_OFF_ALARM = "org.codeaurora.permission.POWER_OFF_ALARM";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,7 +145,23 @@ public class PermissionsManagementActivity extends CollapsingToolbarBaseActivity
 
         }
 
-        grantPowerOffPermission();
+        if(MiuiCheck.isMiui()){
+            mShowLockscreenView = findViewById(R.id.show_lockscreen_view);
+            mShowLockscreenView.setVisibility(View.VISIBLE);
+            mShowLockscreenView.setOnClickListener(v -> grantShowOnLockScreenPermissionXiaomi());
+
+            mShowLockscreenDetails = findViewById(R.id.show_lockscreen_button);
+            mShowLockscreenDetails.setOnClickListener(v ->
+                    new AlertDialog.Builder(this)
+                            .setTitle(R.string.show_lockscreen_dialog_title)
+                            .setMessage(R.string.show_lockscreen_dialog_text)
+                            .setPositiveButton(R.string.permission_dialog_close_button, null)
+                            .show()
+            );
+        }
+
+
+        // grantPowerOffPermission();
     }
 
     @Override
@@ -237,11 +256,36 @@ public class PermissionsManagementActivity extends CollapsingToolbarBaseActivity
     /**
      * Grant or revoke Power Off Alarm permission (available only on specific devices)
      */
+    /*
     private void grantPowerOffPermission() {
         int codeForPowerOffAlarm = 0;
         if (checkSelfPermission(PERMISSION_POWER_OFF_ALARM) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{PERMISSION_POWER_OFF_ALARM}, codeForPowerOffAlarm);
         }
+    }
+     */
+
+    private void grantShowOnLockScreenPermissionXiaomi(){
+        if (!MiuiCheck.isMiui())
+            return;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Permiso necesario")
+                .setMessage("Para que la aplicación funcione correctamente, habilitá 'Mostrar en pantalla bloqueada' en las configuraciones de tu dispositivo.")
+                .setPositiveButton("Ir a configuración", (dialog, which) -> {
+                    Intent intent = new Intent("miui.intent.action.APP_PERM_EDITOR");
+                    intent.setClassName("com.miui.securitycenter", "com.miui.permcenter.permissions.PermissionsEditorActivity");
+                    intent.putExtra("extra_pkgname", getPackageName());
+                    try {
+                        startActivity(intent);
+                    } catch (ActivityNotFoundException e) {
+                        Intent fallbackIntent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        fallbackIntent.setData(Uri.parse("package:" + getPackageName()));
+                        startActivity(fallbackIntent);
+                    }
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
     }
 
     /**

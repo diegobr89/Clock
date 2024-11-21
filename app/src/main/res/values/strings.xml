@@ -1388,6 +1388,7 @@
     <string name="permission_highly_recommended">Highly recommended</string>
     <string name="permission_status_title">Status: </string>
     <string name="permission_granted">Granted</string>
+    <string name="permission_unknown">Unknown</string>
     <string name="permission_denied">Denied</string>
     <!-- Denied permission label on long press on warning icon -->
     <string name="denied_permission_label">Permission denied</string>
@@ -1409,6 +1410,12 @@
     <string name="FSN_permission_title">ENABLE FULL SCREEN NOTIFICATIONS</string>
     <string name="FSN_dialog_title">Full Screen Notifications</string>
     <string name="FSN_dialog_text">Since Android 14, in order for the alarm to be triggered when the screen is off, it\'s imperative that Full Screen Notifications permission is enabled</string>
+
+    <!-- Shown on lockscreen (xiaomi) notifications permission -->
+    <string name="show_lockscreen_permission_title">SHOW ON LOCKSCREEN</string>
+    <string name="show_lockscreen_dialog_title">Allow to show on lockscreen</string>
+    <string name="show_lockscreen_dialog_text">On Xiaomi devices you should manually activate permisison of "Show on lockscreen" from app settings</string>
+
     <!--
     Backup & Restore
     -->
